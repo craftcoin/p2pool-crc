@@ -8,13 +8,9 @@
 
 ##Setup:
 ####Linux:
+If Python version <= 2.6 : `sudo apt-get install python-argparse`
 
     sudo apt-get install python-zope.interface python-twisted python-twisted-web
-
-If Python version <= 2.6 :
-
-    sudo apt-get install python-argparse
-
     cd litecoin_scrypt
     sudo python setup.py install
 
@@ -53,10 +49,10 @@ Run for additional options.
 
 
 ###Donations towards further development:
-forrestv: 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk (Original P2Pool creator)
+forrestv (Original P2Pool Creator): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
 
 ###Official wiki:
 https://en.bitcoin.it/wiki/P2Pool
 
 ###Alternate web front end:
-* https://github.com/hardcpp/P2PoolExtendedFrontEnd
+https://github.com/hardcpp/P2PoolExtendedFrontEnd
