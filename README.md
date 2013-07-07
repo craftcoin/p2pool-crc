@@ -54,7 +54,7 @@ Run for additional options.
 ###Credits and Donations:
 * [forrestv](https://github.com/forrestv) (Original P2Pool): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
 * [testzcrypto](https://github.com/testzcrypto) (Conversion to Craftcoin): QKTCHBMHajXsrdDVGW33wtuHA7wfvswLnJ
-* [CartmanSPC](https://bitcointalk.org/index.php?action=profile;u=101393) (Conversion to Craftcoin)
+* [CartmanSPC](https://bitcointalk.org/index.php?action=profile;u=101393) (Conversion to Craftcoin): QBFBJs6KBX2GZogVdti6Ui6Zyx81gYPuVE
 
 ###Official wiki:
 https://en.bitcoin.it/wiki/P2Pool
