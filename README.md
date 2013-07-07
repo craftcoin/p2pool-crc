@@ -49,9 +49,9 @@ Run for additional options.
 
 
 ###Credits and Donations:
-forrestv (Original P2Pool Creator): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
-testzcrypto (Conversion to Craftcoin): QKTCHBMHajXsrdDVGW33wtuHA7wfvswLnJ
-CartmanSPC (Conversion to Craftcoin)
+* forrestv (Original P2Pool Creator): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
+* testzcrypto (Conversion to Craftcoin): QKTCHBMHajXsrdDVGW33wtuHA7wfvswLnJ
+* CartmanSPC (Conversion to Craftcoin)
 
 ###Official wiki:
 https://en.bitcoin.it/wiki/P2Pool
