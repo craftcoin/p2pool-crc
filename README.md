@@ -11,10 +11,12 @@ Setup:
 -------------------------
 
 Linux:
+
     sudo apt-get install python-zope.interface python-twisted python-twisted-web
     sudo apt-get install python-argparse # if on Python 2.6 or older
     
 For scrypt support:
+
     cd litecoin_scrypt
     sudo python setup.py install
 
