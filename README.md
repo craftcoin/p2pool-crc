@@ -15,20 +15,19 @@ If Python version <= 2.6 : `sudo apt-get install python-argparse`
     sudo python setup.py install
 
 ####Windows:
-* Install MinGW: http://www.mingw.org/wiki/Getting_Started
-* Install Python 2.7: http://www.python.org/getit/
-* Install Twisted: http://twistedmatrix.com/trac/wiki/Downloads
-* Install Zope.Interface: http://pypi.python.org/pypi/zope.interface/3.8.0
-* Install python win32 api: http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/
-* Install python win32 api wmi wrapper: https://pypi.python.org/pypi/WMI/#downloads
+* Install [MinGW](http://www.mingw.org/wiki/Getting_Started)
+* Install [Python 2.7](http://www.python.org/getit/)
+* Install [Twisted](http://twistedmatrix.com/trac/wiki/Downloads)
+* Install [Zope.Interface](http://pypi.python.org/pypi/zope.interface/3.8.0)
+* Install [python win32 api](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218)
+* Install [python win32 api wmi wrapper](https://pypi.python.org/pypi/WMI/#downloads)
 * Unzip the files into C:\Python27\Lib\site-packages
 * In MinGW bash:
 
     cd litecoin_scrypt
     C:\Python27\python.exe setup.py build --compile=mingw32 install
 
-If you run into an error with unrecognized command line option '-mno-cygwin', see this:
-http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o
+If you run into an error with unrecognized command line option '-mno-cygwin', see [this](http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o)
 
 
 ##Running P2Pool:
@@ -49,9 +48,9 @@ Run for additional options.
 
 
 ###Credits and Donations:
-* forrestv (Original P2Pool Creator): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
-* testzcrypto (Conversion to Craftcoin): QKTCHBMHajXsrdDVGW33wtuHA7wfvswLnJ
-* CartmanSPC (Conversion to Craftcoin)
+* [forrestv](https://github.com/forrestv) (Original P2Pool): 1HNeqi3pJRNvXybNX4FKzZgYJsdTSqJTbk
+* [testzcrypto](https://github.com/testzcrypto) (Conversion to Craftcoin): QKTCHBMHajXsrdDVGW33wtuHA7wfvswLnJ
+* [CartmanSPC](https://bitcointalk.org/index.php?action=profile;u=101393) (Conversion to Craftcoin)
 
 ###Official wiki:
 https://en.bitcoin.it/wiki/P2Pool
