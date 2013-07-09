@@ -120,7 +120,7 @@ nets = dict(
     ),
     craftcoin=math.Object(
         PARENT=networks.nets['craftcoin'],
-        SHARE_PERIOD=300, # seconds target spacing
+        SHARE_PERIOD=30, # seconds target spacing
         CHAIN_LENGTH=24*60*60//10, # shares
         REAL_CHAIN_LENGTH=24*60*60//10, # shares
         TARGET_LOOKBEHIND=200, # shares coinbase maturity
