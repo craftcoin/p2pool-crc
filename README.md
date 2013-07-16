@@ -5,6 +5,10 @@
 * python-argparse (for Python <=2.6)
 * litecoin_scrypt (included)
 
+##Update - Important!
+* Those updating to v13.1 from an older version will need to setup a new as it is not compatible with the old version.
+* The P2Pool communication port has changed to 23630.
+
 
 ##Setup:
 ####Linux:
@@ -44,7 +48,7 @@ Then run your miner program, connecting to 127.0.0.1 on port 8830 with any
 username and password.
 
 If you are behind a NAT, you should enable TCP port forwarding on your
-router. Forward port 23336 to the host running P2Pool.
+router. Forward port 23630 to the host running P2Pool.
 
 Run for additional options.
 

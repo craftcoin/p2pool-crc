@@ -1,9 +1,11 @@
 from __future__ import division
 
+import base64
 import random
 import tempfile
 
 from twisted.internet import defer, reactor
+from twisted.python import failure
 from twisted.trial import unittest
 from twisted.web import client, resource, server
 
@@ -53,8 +55,15 @@ class bitcoind(object): # can be used as p2p factory, p2p protocol, or rpc jsonr
         block_hash = int(block_hash_hex, 16)
         return dict(height=self.blocks.index(block_hash))
     
-    def rpc_getmemorypool(self, result=None):
-        if result is not None:
+    def __getattr__(self, name):
+        if name.startswith('rpc_'):
+            return lambda *args, **kwargs: failure.Failure(jsonrpc.Error_for_code(-32601)('Method not found'))
+    
+    def rpc_getblocktemplate(self, param):
+        if param['mode'] == 'template':
+            pass
+        elif param['mode'] == 'submit':
+            result = param['data']
             block = bitcoin_data.block_type.unpack(result.decode('hex'))
             if sum(tx_out['value'] for tx_out in block['txs'][0]['tx_outs']) != sum(tx['tx_outs'][0]['value'] for tx in block['txs'][1:]) + 5000000000:
                 print 'invalid fee'
@@ -67,12 +76,14 @@ class bitcoind(object): # can be used as p2p factory, p2p protocol, or rpc jsonr
             self.headers[header_hash] = block['header']
             reactor.callLater(0, self.new_block.happened)
             return True
+        else:
+            raise jsonrpc.Error_for_code(-1)('invalid request')
         
         txs = []
         for i in xrange(100):
             fee = i
             txs.append(dict(
-                data=bitcoin_data.tx_type.pack(dict(version=1, tx_ins=[], tx_outs=[dict(value=fee*1000 + i, script='hello!'*100)], lock_time=0)).encode('hex'),
+                data=bitcoin_data.tx_type.pack(dict(version=1, tx_ins=[], tx_outs=[dict(value=fee, script='hello!'*100)], lock_time=0)).encode('hex'),
                 fee=fee,
             ))
         return {
@@ -115,10 +126,12 @@ class mm_provider(object):
 mynet = math.Object(
     PARENT=networks.nets['litecoin_testnet'],
     SHARE_PERIOD=3, # seconds
+    NEW_SHARE_PERIOD=5, # seconds
     CHAIN_LENGTH=20*60//3, # shares
     REAL_CHAIN_LENGTH=20*60//3, # shares
     TARGET_LOOKBEHIND=200, # shares
     SPREAD=12, # blocks
+    NEW_SPREAD=3, # blocks
     IDENTIFIER='cca5e24ec6408b1e'.decode('hex'),
     PREFIX='ad9614f6466a39cf'.decode('hex'),
     P2P_PORT=19338,
@@ -175,7 +188,8 @@ class Test(unittest.TestCase):
         worker_interface.WorkerInterface(wb).attach_to(web_root)
         port = reactor.listenTCP(0, server.Site(web_root))
         
-        proxy = jsonrpc.HTTPProxy('http://127.0.0.1:' + str(port.getHost().port))
+        proxy = jsonrpc.HTTPProxy('http://127.0.0.1:' + str(port.getHost().port),
+            headers=dict(Authorization='Basic ' + base64.b64encode('user/0:password')))
         
         yield deferral.sleep(3)
         
@@ -217,7 +231,8 @@ class Test(unittest.TestCase):
         yield deferral.sleep(3)
         
         for i in xrange(SHARES):
-            proxy = jsonrpc.HTTPProxy('http://127.0.0.1:' + str(random.choice(nodes).web_port.getHost().port))
+            proxy = jsonrpc.HTTPProxy('http://127.0.0.1:' + str(random.choice(nodes).web_port.getHost().port),
+                headers=dict(Authorization='Basic ' + base64.b64encode('user/0:password')))
             blah = yield proxy.rpc_getwork()
             yield proxy.rpc_getwork(blah['data'])
             yield deferral.sleep(.05)
@@ -250,7 +265,7 @@ class Test(unittest.TestCase):
         for i, n in enumerate(nodes):
             assert len(n.n.tracker.items) == SHARES, (i, len(n.n.tracker.items))
             assert n.n.tracker.verified.get_height(n.n.best_share_var.value) == SHARES, (i, n.n.tracker.verified.get_height(n.n.best_share_var.value))
-            assert type(n.n.tracker.items[nodes[0].n.best_share_var.value]) is data.Share
+            assert type(n.n.tracker.items[nodes[0].n.best_share_var.value]) is (data.Share.SUCCESSOR if data.Share.SUCCESSOR is not None else data.Share)
             assert type(n.n.tracker.items[n.n.tracker.get_nth_parent_hash(nodes[0].n.best_share_var.value, SHARES - 5)]) is data.Share
         
         for n in nodes:

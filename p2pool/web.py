@@ -91,16 +91,6 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
             if bitcoin_data.script2_to_address(script, node.net.PARENT) is not None
         ))
     
-    def get_local_rates():
-        miner_hash_rates = {}
-        miner_dead_hash_rates = {}
-        datums, dt = wb.local_rate_monitor.get_datums_in_last()
-        for datum in datums:
-            miner_hash_rates[datum['user']] = miner_hash_rates.get(datum['user'], 0) + datum['work']/dt
-            if datum['dead']:
-                miner_dead_hash_rates[datum['user']] = miner_dead_hash_rates.get(datum['user'], 0) + datum['work']/dt
-        return miner_hash_rates, miner_dead_hash_rates
-    
     def get_global_stats():
         # averaged over last hour
         if node.tracker.get_height(node.best_share_var.value) < 10:
@@ -138,7 +128,7 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
             node.tracker.items[node.tracker.get_nth_parent_hash(node.best_share_var.value, lookbehind - 1)].timestamp)
         share_att_s = my_work / actual_time
         
-        miner_hash_rates, miner_dead_hash_rates = get_local_rates()
+        miner_hash_rates, miner_dead_hash_rates = wb.get_local_rates()
         (stale_orphan_shares, stale_doa_shares), shares, _ = wb.get_stale_counts()
         
         return dict(
@@ -208,7 +198,7 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
     web_root.putChild('patron_sendmany', WebInterface(get_patron_sendmany, 'text/plain'))
     web_root.putChild('global_stats', WebInterface(get_global_stats))
     web_root.putChild('local_stats', WebInterface(get_local_stats))
-    web_root.putChild('peer_addresses', WebInterface(lambda: ['%s:%i' % (peer.transport.getPeer().host, peer.transport.getPeer().port) for peer in node.p2p_node.peers.itervalues()]))
+    web_root.putChild('peer_addresses', WebInterface(lambda: ' '.join('%s%s' % (peer.transport.getPeer().host, ':'+str(peer.transport.getPeer().port) if peer.transport.getPeer().port != node.net.P2P_PORT else '') for peer in node.p2p_node.peers.itervalues())))
     web_root.putChild('peer_txpool_sizes', WebInterface(lambda: dict(('%s:%i' % (peer.transport.getPeer().host, peer.transport.getPeer().port), peer.remembered_txs_size) for peer in node.p2p_node.peers.itervalues())))
     web_root.putChild('pings', WebInterface(defer.inlineCallbacks(lambda: defer.returnValue(
         dict([(a, (yield b)) for a, b in
@@ -251,7 +241,7 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
         
         global_stale_prop = p2pool_data.get_average_stale_prop(node.tracker, node.best_share_var.value, lookbehind)
         (stale_orphan_shares, stale_doa_shares), shares, _ = wb.get_stale_counts()
-        miner_hash_rates, miner_dead_hash_rates = get_local_rates()
+        miner_hash_rates, miner_dead_hash_rates = wb.get_local_rates()
         
         stat_log.append(dict(
             time=time.time(),
@@ -302,6 +292,8 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
                 stale_info=share.share_data['stale_info'],
                 nonce=share.share_data['nonce'],
                 desired_version=share.share_data['desired_version'],
+                absheight=share.absheight,
+                abswork=share.abswork,
             ),
             block=dict(
                 hash='%064x' % share.header_hash,
@@ -318,7 +310,7 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
                     coinbase=share.share_data['coinbase'].ljust(2, '\x00').encode('hex'),
                     value=share.share_data['subsidy']*1e-8,
                 ),
-                txn_count_range=[len(share.other_txs), len(share.other_txs)] if share.other_txs is not None else 1 if len(share.merkle_link['branch']) == 0 else [2**len(share.merkle_link['branch'])//2+1, 2**len(share.merkle_link['branch'])],
+                txn_count=len(list(share.iter_transaction_hash_refs())),
             ),
         )
     new_root.putChild('share', WebInterface(lambda share_hash_str: get_share(share_hash_str)))
@@ -429,7 +421,7 @@ def get_web_root(wb, datadir_path, bitcoind_warning_var, stop_event=variable.Eve
         
         current_txouts = node.get_current_txouts()
         hd.datastreams['current_payout'].add_datum(t, current_txouts.get(bitcoin_data.pubkey_hash_to_script2(wb.my_pubkey_hash), 0)*1e-8)
-        miner_hash_rates, miner_dead_hash_rates = get_local_rates()
+        miner_hash_rates, miner_dead_hash_rates = wb.get_local_rates()
         current_txouts_by_address = dict((bitcoin_data.script2_to_address(script, node.net.PARENT), amount) for script, amount in current_txouts.iteritems())
         hd.datastreams['current_payouts'].add_datum(t, dict((user, current_txouts_by_address[user]*1e-8) for user in miner_hash_rates if user in current_txouts_by_address))
         
